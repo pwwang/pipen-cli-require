@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 import pytest
 from pipen.cli import main
-from pipen_cli_run import PipenCliRunPlugin
+from pipen_cli_require import PipenCliRunPlugin
 from . import example_procs, example_pipeline
 from .utils import plugin_to_entrypoint
 

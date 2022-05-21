@@ -19,21 +19,21 @@ repos:
         args:
             - get_ver() { echo $(egrep "^__version|^version" $1 | cut -d= -f2 | sed 's/\"\| //g'); };
               v1=`get_ver pyproject.toml`;
-              v2=`get_ver pipen_cli_run/version.py`;
+              v2=`get_ver pipen_cli_require/version.py`;
               if [[ $v1 == $v2 ]]; then exit 0; else exit 1; fi
         pass_filenames: false
-        files: ^pyproject\.toml|pipen_cli_run/version\.py$
+        files: ^pyproject\.toml|pipen_cli_require/version\.py$
     -   id: pytest
         name: Run pytest
         entry: pytest
         language: system
         args: [tests/]
         pass_filenames: false
-        files: ^tests/.+$|^pipen_cli_run/.+$
+        files: ^tests/.+$|^pipen_cli_require/.+$
     -   id: flake8
         name: Run flake8
         entry: flake8
         language: system
-        args: [pipen_cli_run]
+        args: [pipen_cli_require]
         pass_filenames: false
-        files: ^pipen_cli_run/.+$
+        files: ^pipen_cli_require/.+$

@@ -1,5 +1,5 @@
 from diot import Diot
-from pipen_cli_run.utils import ENTRY_POINT_GROUP
+from pipen_cli_require.require import ENTRY_POINT_GROUP
 
 def plugin_to_entrypoint(plugin):
     return Diot(
