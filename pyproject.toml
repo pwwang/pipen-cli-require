@@ -29,7 +29,7 @@ target-version = ['py37', 'py38', 'py39']
 include = '\.pyi?$'
 
 [tool.pytest.ini_options]
-addopts = "-vv -n auto --cov-config=.coveragerc --cov=pipen_cli_require --cov-report xml:.coverage.xml --cov-report term-missing"
+addopts = "-vv -n auto -p no:asyncio --cov-config=.coveragerc --cov=pipen_cli_require --cov-report xml:.coverage.xml --cov-report term-missing"
 filterwarnings = [
     #"error"
 ]

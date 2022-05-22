@@ -18,6 +18,9 @@ class P1(Proc):
           message: Run `pip install -U nonexist` to install
           check: |
             {{proc.lang}} -c "import nonexist"
+        - name: nonexist2_nomsg
+          check: |
+            {{proc.lang}} -c "import nonexist"
     """
 
     input = "a"

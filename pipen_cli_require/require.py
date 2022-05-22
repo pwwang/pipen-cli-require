@@ -16,9 +16,8 @@ from liquid import Liquid
 from pipen import Pipen, Proc
 from pipen_annotate import annotate
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from pyparam import Namespace
-    from pipen import Pipen
 
 
 PROC_SUMMARY_NAME = "SUMMARY"
