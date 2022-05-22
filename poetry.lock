@@ -321,7 +321,7 @@ varname = ">=0.8,<0.9"
 
 [[package]]
 name = "pipen"
-version = "0.3.4"
+version = "0.3.5"
 description = "A pipeline framework for python"
 category = "main"
 optional = false
@@ -956,8 +956,8 @@ pipda = [
     {file = "pipda-0.6.0.tar.gz", hash = "sha256:4a5655dae0c940126d4d43f198bfed493ed5830b4bdba73242ec79711710d749"},
 ]
 pipen = [
-    {file = "pipen-0.3.4-py3-none-any.whl", hash = "sha256:8c091a50d96df1742518e843b57e5c5ff20a4a57b549403542f3ca1dbbb0abb3"},
-    {file = "pipen-0.3.4.tar.gz", hash = "sha256:31be6cbb3b986f67a4a4a984e9d556f12d5f557e1ac230dfd658497d7084fa7d"},
+    {file = "pipen-0.3.5-py3-none-any.whl", hash = "sha256:efe95f7a6af6b8cad7826717c09db35c1670f2c7a1f457f5f9de7b6e6fc04e1d"},
+    {file = "pipen-0.3.5.tar.gz", hash = "sha256:9d7a5436447f82f5aab63f21a78751ead5df856f9edb1750924bf9eb05b91098"},
 ]
 pipen-annotate = [
     {file = "pipen-annotate-0.0.1.tar.gz", hash = "sha256:1e6dc62426fa1d689a80df497717155bd523d8c001fa2f0785fb6260e1413a14"},
