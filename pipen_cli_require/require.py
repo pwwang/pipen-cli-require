@@ -21,6 +21,9 @@ if TYPE_CHECKING:
     from pipen import Pipen
 
 
+PROC_SUMMARY_NAME = "SUMMARY"
+
+
 class CheckingStatus(Enum):
     """Status of a requirement checking"""
 
@@ -28,6 +31,7 @@ class CheckingStatus(Enum):
     CHECKING = auto()
     ERROR = auto()
     SUCCESS = auto()
+    SKIPPING = auto()
 
 
 def _render_requirement(s: str, proc: Type[Proc]) -> str:
@@ -78,17 +82,15 @@ def _parse_pardoc_requirements(
 
 def _parse_proc_requirements(proc: Type[Proc]) -> List[Mapping[str, str]]:
     """Parse the requirements of a process"""
-    if not hasattr(proc, "annotated"):
-        proc0 = proc
-        proc = annotate(proc)
+    proc = annotate(proc)
+
     while (
-        issubclass(proc.__bases__[0], Proc) is not Proc
-        and proc.__bases__[0] is not Proc
+        issubclass(proc.__bases__[-1], Proc) is not Proc
+        and proc.__bases__[-1] is not Proc
         and "requires" not in proc.annotated
     ):
-        proc = proc.__bases__[0]
-        if not hasattr(proc, "annotated"):
-            proc = annotate(proc)
+        proc = proc.__bases__[-1]
+        proc = annotate(proc)
 
     if "requires" not in proc.annotated:
         return []
@@ -163,10 +165,18 @@ class PipenRequire:
         )
         subtrees = {}
         for name, status in self.status.items():
+            if status == CheckingStatus.SKIPPING:
+                tree.add(
+                    f"[bold]{name}[/bold]: "
+                    f"{all_reqs[name][PROC_SUMMARY_NAME]}"
+                ).add("[yellow]Skipped, no requirements specified.[/yellow]")
+                continue
+
             pname, cname = name.split("/", 1)
             if pname not in subtrees:
                 subtrees[pname] = tree.add(
-                    f"[bold]{pname}[/bold]: {all_reqs[pname]['SUMMARY']}"
+                    f"[bold]{pname}[/bold]: "
+                    f"{all_reqs[pname][PROC_SUMMARY_NAME]}"
                 )
 
             if status == CheckingStatus.PENDING:
@@ -213,8 +223,12 @@ class PipenRequire:
         self.pool = Pool(processes=self.args.ncores)
         for pname, reqs in all_reqs.items():
             self.results.setdefault(pname, {})
+            if len(reqs) == 1:
+                self.status[pname] = CheckingStatus.SKIPPING
+                continue
+
             for cname, req in reqs.items():
-                if cname == "SUMMARY":
+                if cname == PROC_SUMMARY_NAME:
                     continue
                 self.status[f"{pname}/{cname}"] = CheckingStatus.PENDING
                 self.results[pname][cname] = self.pool.apply_async(
@@ -225,7 +239,11 @@ class PipenRequire:
     def all_done(self):
         """Check if all requirements are done"""
         return all(
-            status in (CheckingStatus.SUCCESS, CheckingStatus.ERROR)
+            status in (
+                CheckingStatus.SUCCESS,
+                CheckingStatus.ERROR,
+                CheckingStatus.SKIPPING
+            )
             for _, status in self.status.items()
         )
 
@@ -237,7 +255,7 @@ class PipenRequire:
             all_reqs[proc.name] = {}
             for req in _parse_proc_requirements(proc):
                 all_reqs[proc.name][req["name"]] = req
-            all_reqs[proc.name]["SUMMARY"] = " ".join(
+            all_reqs[proc.name][PROC_SUMMARY_NAME] = " ".join(
                 proc.annotated.short.lines
             )
 
