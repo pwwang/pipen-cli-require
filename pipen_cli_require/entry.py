@@ -17,6 +17,7 @@ class PipenCliRequirePlugin(CLIPlugin):
     """Run a process or a pipeline"""
 
     from .version import __version__
+
     name = "require"
 
     @cached_property
@@ -45,7 +46,7 @@ class PipenCliRequirePlugin(CLIPlugin):
                 "or `<module.submodule>:<pipeline>`",
                 "`<pipeline>` must be an instance of `Pipen` and running "
                 "the pipeline should be called under `__name__ == '__main__'.",
-            )
+            ),
         )
         pms.add_param(
             pms.help_keys,
@@ -70,8 +71,8 @@ class PipenCliRequirePlugin(CLIPlugin):
             args_to_parse = args
             pipeline_args = []
         else:
-            args_to_parse = args[:pipeline_pos+1]
-            pipeline_args = args[pipeline_pos+1:]
+            args_to_parse = args[: pipeline_pos + 1]
+            pipeline_args = args[pipeline_pos + 1 :]
 
         parsed = self.params.parse(args_to_parse)
         parsed[POSITIONAL].extend(pipeline_args)

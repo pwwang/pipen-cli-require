@@ -30,6 +30,7 @@ repos:
         args: [tests/]
         pass_filenames: false
         files: ^tests/.+$|^pipen_cli_require/.+$
+        exclude: ^pipen_cli_require/version\.py$
     -   id: flake8
         name: Run flake8
         entry: flake8
