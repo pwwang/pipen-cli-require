@@ -379,7 +379,7 @@ pipen = ">=0.3,<0.4"
 
 [[package]]
 name = "pipen-args"
-version = "0.2.1"
+version = "0.2.2"
 description = "Command-line argument parser for pipen."
 category = "dev"
 optional = false
@@ -1023,8 +1023,8 @@ pipen-annotate = [
     {file = "pipen_annotate-0.0.2-py3-none-any.whl", hash = "sha256:f66a0d965ed58e1868f8d41d4c7d3f788329062b4532a30a1aa208f12c4492a8"},
 ]
 pipen-args = [
-    {file = "pipen-args-0.2.1.tar.gz", hash = "sha256:bbe1065ce236407c6b72c2af8e835f0142f34883e362ed80624f5df766171ec4"},
-    {file = "pipen_args-0.2.1-py3-none-any.whl", hash = "sha256:a8dfc42b24c8894ac6b2f0646b90fe8734ab9f0d16e6c889e2ba47a091d014e9"},
+    {file = "pipen-args-0.2.2.tar.gz", hash = "sha256:103766b1fc2bcc09e195ff5a9673dd91bf3588968b64c2de29fd796cdbb84591"},
+    {file = "pipen_args-0.2.2-py3-none-any.whl", hash = "sha256:271b9420a31da34e7f2e3dde40307dc379ed75f87df61ca57af3e2cdc05faa02"},
 ]
 pluggy = [
     {file = "pluggy-1.0.0-py2.py3-none-any.whl", hash = "sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3"},
