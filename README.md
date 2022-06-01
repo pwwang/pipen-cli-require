@@ -13,7 +13,7 @@ pip install -U pipen-cli-require
 ### Defining requirements of a process
 
 ```python
-# pipeline.py
+# example_pipeline.py
 from pipen import Pipen, Proc
 
 class P1(Proc):
@@ -60,4 +60,21 @@ Checking requirements for pipeline: EXAMPLE_PIPELINE
         └── Traceback (most recent call last):
               File "<string>", line 1, in <module>
             ModuleNotFoundError: No module named 'nonexist'
+
+```
+
+## Checking requirements with runtime arguments
+
+For example, when I use a different python to run the pipeline:
+
+Add this to the head of `example_pipeline.py`:
+
+```python
+from pipen_args import args as _
+```
+
+Then specify the path of the python to use:
+
+```shell
+pipen require tests/example_pipeline.py:example_pipeline --P1.lang /path/to/another/python
 ```
