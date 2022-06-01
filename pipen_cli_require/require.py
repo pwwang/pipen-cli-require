@@ -166,7 +166,7 @@ class PipenRequire:
         self._update_status()
         tree = Tree(
             "\nChecking requirements for pipeline: "
-            f"[bold]{self.pipeline.name.upper()}[/bold]",
+            f"[bold]{self.pipeline.name.upper()}[/bold]\n│",
         )
         subtrees = {}
         for name, status in self.status.items():

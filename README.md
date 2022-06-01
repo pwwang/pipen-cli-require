@@ -1,4 +1,4 @@
-# pipen-cli-run
+# pipen-cli-require
 
 Checking the requirements for processes of a pipeline
 
@@ -53,6 +53,7 @@ if __name__ == '__main__':
 > pipen require -v -n 2 tests/example_pipeline.py:example_pipeline
 
 Checking requirements for pipeline: EXAMPLE_PIPELINE
+│
 └── P1: Process 1
     ├── ✔️ pipen
     ├── ✔️ liquidpy
@@ -72,6 +73,8 @@ Add this to the head of `example_pipeline.py`:
 ```python
 from pipen_args import args as _
 ```
+
+See also `tests/pipen_args_pipeline.py`
 
 Then specify the path of the python to use:
 
