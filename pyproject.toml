@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipen-cli-require"
-version = "0.0.0"
+version = "0.1.0"
 description = "A pipen cli plugin to check requirements for processes of a pipeline"
 authors = ["pwwang <pwwang@pwwang.com>"]
 license = "MIT"
