@@ -1,5 +1,5 @@
 """Provides the PipenRequire class"""
-
+import sys
 import importlib
 from enum import Enum, auto
 from pathlib import Path
@@ -113,8 +113,14 @@ def _run_check(pname, name, check, status, errors):
 class PipenRequire:
     """The class to extract and check requirements"""
 
-    def __init__(self, pipeline: str, args: "Namespace"):
+    def __init__(
+        self,
+        pipeline: str,
+        pipeline_args: List[str],
+        args: "Namespace",
+    ):
         self.pipeline = self._parse_pipeline(pipeline)
+        self.pipeline_args = pipeline_args
         self.args = args
         self.status = Manager().dict()
         self.errors = Manager().dict()
@@ -246,8 +252,13 @@ class PipenRequire:
             for _, status in self.status.items()
         )
 
-    def run(self):
+    async def run(self):
         """Run the pipeline"""
+        # Inject the cli arguments to the pipeline
+        sys.argv = [self.pipeline.name] + self.pipeline_args
+        # Initialize the pipeline so that the arguments definied by
+        # other plugins (i.e. pipen-args) to take in place.
+        await self.pipeline._init()
         self.pipeline.build_proc_relationships()
         all_reqs = {}
         for proc in self.pipeline.procs:
