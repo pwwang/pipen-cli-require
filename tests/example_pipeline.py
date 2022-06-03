@@ -21,10 +21,15 @@ class P1(Proc):
         - name: nonexist2_nomsg
           check: |
             {{proc.lang}} -c "import nonexist"
+        - name: optional
+          if: {{proc.envs.require_optional}}
+          check: |
+            {{proc.lang}} -c "import optional"
     """
 
     input = "a"
     output = "outfile:file:out.txt"
+    envs = {"require_optional": False}
     lang = sys.executable
 
 

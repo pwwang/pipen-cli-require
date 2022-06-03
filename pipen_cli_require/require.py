@@ -31,6 +31,7 @@ class CheckingStatus(Enum):
     ERROR = auto()
     SUCCESS = auto()
     SKIPPING = auto()
+    IF_SKIPPING = auto()
 
 
 def _render_requirement(s: str, proc: Type[Proc]) -> str:
@@ -62,6 +63,7 @@ def _parse_pardoc_requirements(
     for item in pardoc_req.more:
         if not isinstance(item, ParsedItem) or item.name not in (
             "message",
+            "if",
             "check",
         ):
             raise ValueError(
@@ -71,6 +73,8 @@ def _parse_pardoc_requirements(
             )
         if item.name == "message":
             requirement["message"] = _render_requirement(item.desc, proc)
+        elif item.name == "if":
+            requirement["if"] = _render_requirement(item.desc, proc)
         else:
             requirement["check"] = _render_requirement(
                 "\n".join(item.more[0].lines), proc
@@ -100,9 +104,13 @@ def _parse_proc_requirements(proc: Type[Proc]) -> List[Mapping[str, str]]:
     ]
 
 
-def _run_check(pname, name, check, status, errors):
+def _run_check(pname, name, cond, check, status, errors):
     """Run a check"""
     status[f"{pname}/{name}"] = CheckingStatus.CHECKING
+    if cond.lower() not in ("true", "1"):
+        status[f"{pname}/{name}"] = CheckingStatus.IF_SKIPPING
+        return
+
     cmd = ["/usr/bin/env", "bash", "-c", check]
     p = run(cmd, stdout=PIPE, stderr=PIPE)
     if p.returncode != 0:
@@ -193,20 +201,23 @@ class PipenRequire:
                     Status(f"[yellow]{cname}[/yellow]", spinner="dots")
                 )
             elif status == CheckingStatus.SUCCESS:
-                subtrees[pname].add(f"[green]✔️ {cname}[/green]")
+                subtrees[pname].add(f"[green]✅ {cname}[/green]")
+            elif status == CheckingStatus.IF_SKIPPING:
+                subtrees[pname].add(
+                    f"[green]⏩ {cname}[/green] "
+                    "[yellow](skipped by if-statement)[/yellow]"
+                )
             elif status == CheckingStatus.ERROR:
                 if "message" in all_reqs[pname][cname]:
                     subtree = subtrees[pname].add(
-                        f"[red][bold]x[/bold] {cname}: "
+                        f"[red]❎ {cname}: "
                         f"{all_reqs[pname][cname]['message']}[/red]"
                     )
                 else:
-                    subtree = subtrees[pname].add(f"[red]x {cname}[/red]")
+                    subtree = subtrees[pname].add(f"[red]❎ {cname}[/red]")
 
                 if self.args.verbose:
-                    subtree.add(
-                        f"[red]{self.errors[name]}[/red]"
-                    )
+                    subtree.add(f"[red]{self.errors[name]}[/red]")
 
         return tree
 
@@ -214,12 +225,14 @@ class PipenRequire:
         """Update the status of the checking"""
         for pname, rets in self.results.items():
             for cname, ret in rets.items():
+                key = f"{pname}/{cname}"
                 if not ret.ready():
                     pass
                 elif ret.successful():
-                    self.status[f"{pname}/{cname}"] = CheckingStatus.SUCCESS
+                    if self.status[key] == CheckingStatus.CHECKING:
+                        self.status[key] = CheckingStatus.SUCCESS
                 else:
-                    self.status[f"{pname}/{cname}"] = CheckingStatus.ERROR
+                    self.status[key] = CheckingStatus.ERROR
 
     def _start_requirements_check(
         self, all_reqs: Mapping[str, Mapping[str, str]]
@@ -238,16 +251,25 @@ class PipenRequire:
                 self.status[f"{pname}/{cname}"] = CheckingStatus.PENDING
                 self.results[pname][cname] = self.pool.apply_async(
                     _run_check,
-                    args=(pname, cname, req["check"], self.status, self.errors),
+                    args=(
+                        pname,
+                        cname,
+                        req.get("if", "true"),
+                        req["check"],
+                        self.status,
+                        self.errors,
+                    ),
                 )
 
     def all_done(self):
         """Check if all requirements are done"""
         return all(
-            status in (
+            status
+            in (
                 CheckingStatus.SUCCESS,
                 CheckingStatus.ERROR,
-                CheckingStatus.SKIPPING
+                CheckingStatus.IF_SKIPPING,
+                CheckingStatus.SKIPPING,
             )
             for _, status in self.status.items()
         )
@@ -273,7 +295,7 @@ class PipenRequire:
 
         with Live(self._generate_tree(all_reqs)) as live:
             while not self.all_done():
-                sleep(.8)
+                sleep(0.8)
                 live.update(self._generate_tree(all_reqs))
 
     def __del__(self):

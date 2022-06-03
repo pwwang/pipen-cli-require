@@ -32,9 +32,15 @@ class P1(Proc):
           message: Run `pip install -U nonexist` to install
           check: |
             {{proc.lang}} -c "import nonexist"
+        - name: optional
+          if: {{proc.envs.require_optional}}
+          check:
+            {{proc.lang}} -c "import optional"
+
     """
     input = "a"
     output = "outfile:file:out.txt"
+    envs = {"require_optional": False}
     lang = "python"
 
 # Setup the pipeline
@@ -54,14 +60,21 @@ if __name__ == '__main__':
 
 Checking requirements for pipeline: EXAMPLE_PIPELINE
 │
-└── P1: Process 1
-    ├── ✔️ pipen
-    ├── ✔️ liquidpy
-    └── x nonexist: Run `pip install -U nonexist` to install
-        └── Traceback (most recent call last):
-              File "<string>", line 1, in <module>
-            ModuleNotFoundError: No module named 'nonexist'
-
+├── P1: Process 1
+│   ├── ✅ pipen
+│   ├── ✅ liquidpy
+│   ├── ❎ nonexist: Run `pip install -U nonexist` to install
+│   │   └── Traceback (most recent call last):
+│   │         File "<string>", line 1, in <module>
+│   │       ModuleNotFoundError: No module named 'nonexist'
+│   │
+│   ├── ❎ nonexist2_nomsg
+│   │   └── Traceback (most recent call last):
+│   │         File "<string>", line 1, in <module>
+│   │       ModuleNotFoundError: No module named 'nonexist'
+│   │
+│   └── ⏩ optional (skipped by if-statement)
+...
 ```
 
 ## Checking requirements with runtime arguments
