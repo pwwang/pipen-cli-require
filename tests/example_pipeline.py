@@ -1,6 +1,8 @@
 import sys
 from pipen import Proc, Pipen
-from pipen_annotate import annotate
+
+# from pipen_annotate import annotate
+
 
 class P1(Proc):
     """Process 1
@@ -54,4 +56,3 @@ def example_pipeline(**kwargs) -> Pipen:
 
 # if __name__ == "__main__":
 #     example_pipeline(loglevel="debug").run()
-

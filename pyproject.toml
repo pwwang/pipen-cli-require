@@ -13,8 +13,8 @@ pipen-annotate = "^0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7"
-pytest-asyncio = "^0.18"
-pytest-cov = "^3"
+pytest-asyncio = "^0.20"
+pytest-cov = "^4"
 pytest-xdist = "^2"
 cmdy = "^0.5"
 pipen-args = "^0.2"

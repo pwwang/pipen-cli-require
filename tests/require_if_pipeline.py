@@ -1,6 +1,7 @@
 import sys
 from pipen import Proc, Pipen
 
+
 class P1(Proc):
     """Process 1
 
@@ -35,4 +36,3 @@ def pipen(**kwargs) -> Pipen:
 
 # if __name__ == "__main__":
 #     pipen(loglevel="debug").run()
-

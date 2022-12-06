@@ -5,9 +5,9 @@ from pathlib import Path
 import cmdy
 
 REQUIRE_IF_PIPELINE = str(
-    Path(__file__).parent
-    / "require_if_pipeline.py:pipen"
+    Path(__file__).parent / "require_if_pipeline.py:pipen"
 )
+
 
 def test_require_if():
     out = cmdy.pipen.require(v=True, _=[REQUIRE_IF_PIPELINE])

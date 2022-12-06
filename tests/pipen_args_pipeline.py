@@ -1,6 +1,7 @@
 import sys
 from pipen import Proc, Pipen
-from pipen_args import args as _
+from pipen_args import args as _  # noqa: F401
+
 
 class P1(Proc):
     """Process 1

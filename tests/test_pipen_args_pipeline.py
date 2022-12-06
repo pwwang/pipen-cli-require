@@ -5,8 +5,7 @@ from pathlib import Path
 import cmdy
 
 PIPEN_ARGS_PIPELINE = str(
-    Path(__file__).parent
-    / "pipen_args_pipeline.py:example_pipeline"
+    Path(__file__).parent / "pipen_args_pipeline.py:example_pipeline"
 )
 
 PYTHON = sys.executable

@@ -7,7 +7,9 @@ from pyparam import Namespace
 from pipen import Pipen
 from pipen_cli_require.require import PipenRequire
 
-EXAMPLE_PIPELINE = str(Path(__file__).parent / "example_pipeline.py:example_pipeline")
+EXAMPLE_PIPELINE = str(
+    Path(__file__).parent / "example_pipeline.py:example_pipeline"
+)
 
 
 def test_init():
@@ -25,7 +27,7 @@ def test_wrong_pipeline():
         PipenRequire(
             str(Path(__file__).parent / "example_pipeline.py:sys"),
             [],
-            Namespace()
+            Namespace(),
         )
 
 
@@ -56,6 +58,7 @@ def test_cli():
     ]
     p = run(cmd, stdout=PIPE, stderr=PIPE)
     assert p.returncode == 0
+
 
 def test_cli_wrong_args():
     cmd = [
