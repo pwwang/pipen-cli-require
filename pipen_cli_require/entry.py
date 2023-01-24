@@ -14,7 +14,7 @@ except ImportError:  # pragma: no cover
 
 
 class PipenCliRequirePlugin(CLIPlugin):
-    """Run a process or a pipeline"""
+    """Check the requirements of a pipeline"""
 
     from .version import __version__
 
