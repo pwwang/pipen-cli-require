@@ -1,23 +1,20 @@
 import sys
 from pipen import Proc, Pipen
-from pipen_args import args as _  # noqa: F401
+import pipen_args  # noqa: F401
 
 
 class P1(Proc):
     """Process 1
 
     Requires:
-        - name: pipen
-          message: Run `pip install -U pipen` to install
-          check: |
+        pipen: Run `pip install -U pipen` to install
+          - check: |
             {{proc.lang}} -c "import pipen"
-        - name: liquidpy
-          message: Run `pip install -U liquidpy` to install
-          check: |
+        liquidpy: Run `pip install -U liquidpy` to install
+          - check: |
             {{proc.lang}} -c "import liquid"
-        - name: nonexist
-          message: Run `pip install -U nonexist` to install
-          check: |
+        nonexist: Run `pip install -U nonexist` to install
+          - check: |
             {{proc.lang}} -c "import nonexist"
     """
 

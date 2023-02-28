@@ -1,49 +1,59 @@
 import sys
 from pipen import Proc, Pipen
 
-# from pipen_annotate import annotate
-
 
 class P1(Proc):
     """Process 1
 
+    Input:
+        a: a
+
+    Output:
+        outfile: out.txt
+
+    Envs:
+        require_conditional: Some condition
+
     Requires:
-        - name: pipen
-          message: Run `pip install -U pipen` to install
-          check: |
+        pipen: Run `pip install -U pipen` to install
+          - check: |
             {{proc.lang}} -c "import pipen"
-        - name: liquidpy
-          message: Run `pip install -U liquidpy` to install
-          check: |
+        liquidpy: Run `pip install -U liquidpy` to install
+          - check: |
             {{proc.lang}} -c "import liquid"
-        - name: nonexist
-          message: Run `pip install -U nonexist` to install
-          check: |
+        nonexist: Run `pip install -U nonexist` to install
+          - check: |
             {{proc.lang}} -c "import nonexist"
-        - name: nonexist2_nomsg
-          check: |
-            {{proc.lang}} -c "import nonexist"
-        - name: optional
-          if: {{proc.envs.require_optional}}
-          check: |
-            {{proc.lang}} -c "import optional"
+        nonexist2_nomsg:
+          - check: |
+            {{proc.lang}} -c "import nonexist2"
+        conditional:
+          - if: {{proc.envs.require_conditional}}
+          - check: |
+            {{proc.lang}} -c "import require_conditional"
     """
 
     input = "a"
     output = "outfile:file:out.txt"
-    envs = {"require_optional": False}
+    envs = {"require_conditional": False}
     lang = sys.executable
 
 
 class P2(Proc):
-    """Process without requirement specification"""
+    """Process without requirement specification
+
+    Input:
+        a: a
+
+    Output:
+        outfile: out.txt
+    """
 
     requires = P1
     input = "a"
     output = "outfile:file:out.txt"
 
 
-# @annotate
 class P3(P1):
     """No requirements specified but inherits from P1"""
 

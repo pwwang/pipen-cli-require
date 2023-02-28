@@ -6,13 +6,13 @@ class P1(Proc):
     """Process 1
 
     Requires:
-        - name: nonexist1
-          if: {{not proc.envs.require_nonexist}}
-          check: |
+        nonexist1:
+          - if: {{not envs.require_nonexist}}
+          - check: |
             {{proc.lang}} -c "import nonexist1"
-        - name: nonexist2
-          if: {{proc.envs.require_nonexist}}
-          check: |
+        nonexist2:
+          - if: {{proc.envs.require_nonexist}}
+          - check: |
             {{proc.lang}} -c "import nonexist2"
     """
 

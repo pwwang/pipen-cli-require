@@ -1,4 +1,6 @@
 """Provides the PipenRequire class"""
+from __future__ import annotations
+
 import sys
 import importlib
 from enum import Enum, auto
@@ -6,9 +8,9 @@ from pathlib import Path
 from multiprocessing import Pool, Manager
 from subprocess import PIPE, run
 from time import sleep
-from typing import TYPE_CHECKING, List, Mapping, Type
+from typing import List, Mapping, Tuple, Type
 
-from pardoc.parsed import ParsedTodo, ParsedItem
+from diot import Diot, OrderedDiot
 from rich.tree import Tree
 from rich.live import Live
 from rich.status import Status
@@ -16,11 +18,13 @@ from liquid import Liquid
 from pipen import Pipen, Proc
 from pipen_annotate import annotate
 
-if TYPE_CHECKING:  # pragma: no cover
-    from pyparam import Namespace
+PROC_SUMMARY_NAME = "_SUMMARY"
+# Cache the status of the checks: check => status
+# When status is SUCESS, then the check is successful
+# Otherwise, it is the error
+STATUSES = Manager().dict()
 
-
-PROC_SUMMARY_NAME = "SUMMARY"
+annotate.register_section("Requires", "Items")
 
 
 class CheckingStatus(Enum):
@@ -34,74 +38,44 @@ class CheckingStatus(Enum):
     IF_SKIPPING = auto()
 
 
-def _render_requirement(s: str, proc: Type[Proc]) -> str:
+def _render_requirement(s: str | None, proc: Type[Proc]) -> str | None:
     """Render a requirement"""
+    if s is None:
+        return None
+
     liq = Liquid(s, from_file=False, mode="wild")
-    return liq.render(proc=proc)
+    return liq.render(proc=proc, envs=proc.envs)
 
 
-def _parse_pardoc_requirements(
-    pardoc_req: ParsedTodo,
-    proc: Type[Proc],
-) -> List[Mapping[str, str]]:
-    """Parse the pardoc parsed requirements"""
-    requirement = {}
-    if not isinstance(pardoc_req, ParsedTodo):
-        raise ValueError(
-            f"Invalid requirement specification for {proc}: {pardoc_req}\n"
-            "Requirement must be in YAML format, with keys "
-            "`name`, `message` (optional), and `check`"
-        )
-    if not pardoc_req.todo.startswith("name:"):
-        raise ValueError(
-            f"Requirement must start with `name` key, got: {pardoc_req.todo}"
-        )
-
-    requirement["name"] = _render_requirement(
-        pardoc_req.todo[5:].strip(), proc
-    )
-    for item in pardoc_req.more:
-        if not isinstance(item, ParsedItem) or item.name not in (
-            "message",
-            "if",
-            "check",
-        ):
-            raise ValueError(
-                f"Invalid requirement specification for {proc}: {item}\n"
-                "Requirement must be in YAML format, with keys "
-                "`name`, `message` (optional), and `check`"
-            )
-        if item.name == "message":
-            requirement["message"] = _render_requirement(item.desc, proc)
-        elif item.name == "if":
-            requirement["if"] = _render_requirement(item.desc, proc)
-        else:
-            requirement["check"] = _render_requirement(
-                "\n".join(item.more[0].lines), proc
-            )
-
-    return requirement
-
-
-def _parse_proc_requirements(proc: Type[Proc]) -> List[Mapping[str, str]]:
+def _parse_proc_requirements(
+    proc: Type[Proc]
+) -> Tuple[OrderedDiot, OrderedDiot]:
     """Parse the requirements of a process"""
-    proc = annotate(proc)
+    annotated = annotate(proc, inherit=True)
 
-    while (
-        issubclass(proc.__bases__[-1], Proc) is not Proc
-        and proc.__bases__[-1] is not Proc
-        and "requires" not in proc.annotated
-    ):
-        proc = proc.__bases__[-1]
-        proc = annotate(proc)
+    out = OrderedDiot()
+    # No requirements specified
+    if "Requires" not in annotated:
+        return annotated, out
 
-    if "requires" not in proc.annotated:
-        return []
+    for key, val in annotated.Requires.items():
+        out[key] = Diot(
+            message=_render_requirement(val.help, proc),
+            check=_render_requirement(
+                None
+                if "check" not in val.terms
+                else val.terms.check.help,
+                proc,
+            ),
+            if_=_render_requirement(
+                None
+                if "if" not in val.terms
+                else val.terms["if"].help,
+                proc,
+            ),
+        )
 
-    return [
-        _parse_pardoc_requirements(sec, proc)
-        for sec in proc.annotated["requires"].section
-    ]
+    return annotated, out
 
 
 def _run_check(pname, name, cond, check, status, errors):
@@ -111,11 +85,28 @@ def _run_check(pname, name, cond, check, status, errors):
         status[f"{pname}/{name}"] = CheckingStatus.IF_SKIPPING
         return
 
-    cmd = ["/usr/bin/env", "bash", "-c", check]
-    p = run(cmd, stdout=PIPE, stderr=PIPE)
-    if p.returncode != 0:
-        errors[f"{pname}/{name}"] = p.stderr.decode("utf-8")
-    p.check_returncode()
+    if check not in STATUSES:
+        STATUSES[check] = CheckingStatus.CHECKING.value
+        cmd = ["/usr/bin/env", "bash", "-c", check]
+        p = run(cmd, stdout=PIPE, stderr=PIPE)
+        if p.returncode != 0:
+            error = p.stderr.decode("utf-8")
+            STATUSES[check] = errors[f"{pname}/{name}"] = error
+        p.check_returncode()
+        STATUSES[check] = CheckingStatus.SUCCESS.value
+    else:
+        # Wait for the check to finish
+        while STATUSES[check] in (
+            CheckingStatus.PENDING.value,
+            CheckingStatus.CHECKING.value,
+        ):  # pragma: no cover
+            sleep(0.1)
+
+        if STATUSES[check] != CheckingStatus.SUCCESS.value:
+            errors[f"{pname}/{name}"] = STATUSES[check]
+            raise RuntimeError(STATUSES[check])
+        else:
+            STATUSES[check] = CheckingStatus.SUCCESS.value
 
 
 class PipenRequire:
@@ -125,15 +116,17 @@ class PipenRequire:
         self,
         pipeline: str,
         pipeline_args: List[str],
-        args: "Namespace",
+        ncores: int,
+        verbose: bool,
     ):
         self.pipeline = self._parse_pipeline(pipeline)
         self.pipeline_args = pipeline_args
-        self.args = args
+        self.ncores = ncores
+        self.verbose = verbose
         self.status = Manager().dict()
         self.errors = Manager().dict()
         self.pool = None
-        self.results = {}
+        self.results = OrderedDiot()
 
     def _parse_pipeline(self, pipeline: str) -> "Pipen":
         """Parse the pipeline"""
@@ -171,6 +164,7 @@ class PipenRequire:
 
     def _generate_tree(self, all_reqs: Mapping[str, Mapping[str, str]]):
         """Generate a tree to show requirements checking"""
+
         self._update_status()
         tree = Tree(
             "\nChecking requirements for pipeline: "
@@ -208,15 +202,12 @@ class PipenRequire:
                     "[yellow](skipped by if-statement)[/yellow]"
                 )
             elif status == CheckingStatus.ERROR:
-                if "message" in all_reqs[pname][cname]:
-                    subtree = subtrees[pname].add(
-                        f"[red]❎ {cname}: "
-                        f"{all_reqs[pname][cname]['message']}[/red]"
-                    )
-                else:
-                    subtree = subtrees[pname].add(f"[red]❎ {cname}[/red]")
+                subtree = subtrees[pname].add(
+                    f"[red]❎ {cname}: "
+                    f"{all_reqs[pname][cname]['message']}[/red]"
+                )
 
-                if self.args.verbose:
+                if self.verbose:
                     subtree.add(f"[red]{self.errors[name]}[/red]")
 
         return tree
@@ -235,13 +226,15 @@ class PipenRequire:
                     self.status[key] = CheckingStatus.ERROR
 
     def _start_requirements_check(
-        self, all_reqs: Mapping[str, Mapping[str, str]]
+        self,
+        all_reqs: Mapping[str, Mapping[str, str]],
     ):
         """Run the requirements check"""
-        self.pool = Pool(processes=self.args.ncores)
+        self.pool = Pool(processes=self.ncores)
         for pname, reqs in all_reqs.items():
             self.results.setdefault(pname, {})
             if len(reqs) == 1:
+                # No requirements, only summary
                 self.status[pname] = CheckingStatus.SKIPPING
                 continue
 
@@ -254,7 +247,7 @@ class PipenRequire:
                     args=(
                         pname,
                         cname,
-                        req.get("if", "true"),
+                        req.get("if_", "true") or "true",
                         req["check"],
                         self.status,
                         self.errors,
@@ -282,14 +275,11 @@ class PipenRequire:
         # other plugins (i.e. pipen-args) to take in place.
         await self.pipeline._init()
         self.pipeline.build_proc_relationships()
-        all_reqs = {}
+        all_reqs = OrderedDiot()
         for proc in self.pipeline.procs:
-            all_reqs[proc.name] = {}
-            for req in _parse_proc_requirements(proc):
-                all_reqs[proc.name][req["name"]] = req
-            all_reqs[proc.name][PROC_SUMMARY_NAME] = " ".join(
-                proc.annotated.short.lines
-            )
+            anno, requires = _parse_proc_requirements(proc)
+            all_reqs[proc.name] = requires
+            all_reqs[proc.name][PROC_SUMMARY_NAME] = anno.Summary.short
 
         self._start_requirements_check(all_reqs)
 

@@ -3,7 +3,6 @@ import pytest
 import sys
 from pathlib import Path
 
-from pyparam import Namespace
 from pipen import Pipen
 from pipen_cli_require.require import PipenRequire
 
@@ -14,32 +13,33 @@ EXAMPLE_PIPELINE = str(
 
 def test_init():
     """Test the initialization of the class"""
-    pr = PipenRequire(EXAMPLE_PIPELINE, [], Namespace())
+    pr = PipenRequire(EXAMPLE_PIPELINE, [], 1, False)
     assert isinstance(pr.pipeline, Pipen)
 
 
 def test_wrong_pipeline():
     with pytest.raises(ValueError):
-        PipenRequire("pipeline", [], Namespace())
+        PipenRequire("pipeline", [], 1, False)
     with pytest.raises(ValueError):
-        PipenRequire(f"{EXAMPLE_PIPELINE}x", [], Namespace())
+        PipenRequire(f"{EXAMPLE_PIPELINE}x", [], 1, False)
     with pytest.raises(ValueError):
         PipenRequire(
             str(Path(__file__).parent / "example_pipeline.py:sys"),
             [],
-            Namespace(),
+            1,
+            False,
         )
 
 
 def test_init_using_module():
     sys.path.insert(0, str(Path(__file__).parent))
-    pr = PipenRequire("example_pipeline:example_pipeline", [], Namespace())
+    pr = PipenRequire("example_pipeline:example_pipeline", [], 1, False)
     assert isinstance(pr.pipeline, Pipen)
 
 
 @pytest.mark.asyncio
 async def test_normal_run(capsys):
-    pr = PipenRequire(EXAMPLE_PIPELINE, [], Namespace(ncores=1, verbose=True))
+    pr = PipenRequire(EXAMPLE_PIPELINE, [], ncores=1, verbose=True)
     await pr.run()
     out = capsys.readouterr().out
     assert "EXAMPLE_PIPELINE" in out
