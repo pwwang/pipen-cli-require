@@ -1,6 +1,6 @@
 # pipen-cli-require
 
-Checking the requirements for processes of a pipeline
+Checking the requirements for processes of a [pipen][1] pipeline
 
 ## Install
 
@@ -85,3 +85,5 @@ Then specify the path of the python to use:
 ```shell
 pipen require example_pipeline.py:pipeline --P1.lang /path/to/another/python
 ```
+
+[1]: https://github.com/pwwang/pipen
