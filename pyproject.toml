@@ -16,7 +16,7 @@ pytest-asyncio = "^0.20"
 pytest-cov = "^4"
 pytest-xdist = "^3"
 cmdy = "^0.5"
-pipen-args = "^0.5"
+pipen-args = "^0.6"
 
 [tool.poetry.plugins.pipen_cli]
 cli-require = "pipen_cli_require:PipenCliRequirePlugin"

@@ -737,14 +737,14 @@ executing = ">1.1.0,<2.0"
 
 [[package]]
 name = "pipen"
-version = "0.5.0"
+version = "0.5.1"
 description = "A pipeline framework for python"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4.0.0"
 files = [
-    {file = "pipen-0.5.0-py3-none-any.whl", hash = "sha256:8cfe25f6887f597a484286b21380dede46355fda9dd1755bca2d744d189ea9d6"},
-    {file = "pipen-0.5.0.tar.gz", hash = "sha256:f463a6f9928ebda69654a0b5783461f7f725d42ab755f5cc4da6b76f10101725"},
+    {file = "pipen-0.5.1-py3-none-any.whl", hash = "sha256:0babf9e2e75fe95873278ee780e756535ae464f30b4e3dce0b84762a0279547a"},
+    {file = "pipen-0.5.1.tar.gz", hash = "sha256:0501d68d3207a507e22f0659a682be245c7b21598fa58c72d2d2b7f76fa05eac"},
 ]
 
 [package.dependencies]
@@ -779,14 +779,14 @@ pipen = ">=0.5,<0.6"
 
 [[package]]
 name = "pipen-args"
-version = "0.5.0"
+version = "0.6.0"
 description = "Command-line argument parser for pipen."
 category = "dev"
 optional = false
 python-versions = ">=3.7.1,<4.0.0"
 files = [
-    {file = "pipen_args-0.5.0-py3-none-any.whl", hash = "sha256:bf87af0c3bc819b5abd4843cef1d354cbc2ccbebaad45242eaf2d9bfcae27cc2"},
-    {file = "pipen_args-0.5.0.tar.gz", hash = "sha256:b29d851d2c35a5577789dcc4a69184888a8bcc7a3d14b18645b4b78c86d4175a"},
+    {file = "pipen_args-0.6.0-py3-none-any.whl", hash = "sha256:93385c583133cdfc71e045a1b96b86056586a50aed1b41aa02d684d972d1394f"},
+    {file = "pipen_args-0.6.0.tar.gz", hash = "sha256:bb1b77de16032f9a91761a8db7bf3ffab7ae9df49f00baa31eda6a6d90a114ae"},
 ]
 
 [package.dependencies]
@@ -1020,19 +1020,19 @@ files = [
 
 [[package]]
 name = "rich"
-version = "13.3.1"
+version = "13.3.2"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 category = "main"
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "rich-13.3.1-py3-none-any.whl", hash = "sha256:8aa57747f3fc3e977684f0176a88e789be314a99f99b43b75d1e9cb5dc6db9e9"},
-    {file = "rich-13.3.1.tar.gz", hash = "sha256:125d96d20c92b946b983d0d392b84ff945461e5a06d3867e9f9e575f8697b67f"},
+    {file = "rich-13.3.2-py3-none-any.whl", hash = "sha256:a104f37270bf677148d8acb07d33be1569eeee87e2d1beb286a4e9113caf6f2f"},
+    {file = "rich-13.3.2.tar.gz", hash = "sha256:91954fe80cfb7985727a467ca98a7618e5dd15178cc2da10f553b36a93859001"},
 ]
 
 [package.dependencies]
-markdown-it-py = ">=2.1.0,<3.0.0"
-pygments = ">=2.14.0,<3.0.0"
+markdown-it-py = ">=2.2.0,<3.0.0"
+pygments = ">=2.13.0,<3.0.0"
 typing-extensions = {version = ">=4.0.0,<5.0", markers = "python_version < \"3.9\""}
 
 [package.extras]
@@ -1295,4 +1295,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7.1"
-content-hash = "28b888c1c50a3aa198e64590635964b65541d878fbf5ce9da4b0a687677e1a85"
+content-hash = "e3d06804b945ae3fdbe40f56ec57effc54286d485f3a02dc0e137907932e6918"
