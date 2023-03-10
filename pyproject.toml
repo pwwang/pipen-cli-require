@@ -1,10 +1,13 @@
 [tool.poetry]
 name = "pipen-cli-require"
-version = "0.3.1"
+version = "0.3.2"
 description = "A pipen cli plugin to check requirements for processes of a pipeline"
 authors = ["pwwang <pwwang@pwwang.com>"]
 license = "MIT"
 readme = "README.md"
+
+[tool.poetry.build]
+generate-setup-file = true
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
