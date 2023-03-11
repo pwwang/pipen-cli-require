@@ -40,9 +40,10 @@ class P3(P1):
     requires = P2
 
 
-def example_pipeline(**kwargs) -> Pipen:
-    return Pipen(__name__, **kwargs).set_start(P1).set_data(["a"])
-
+class ExamplePipeline(Pipen):
+    name = __name__
+    starts = [P1]
+    data = [["a"]]
 
 if __name__ == "__main__":
-    example_pipeline().run()
+    ExamplePipeline().run()

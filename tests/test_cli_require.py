@@ -7,7 +7,7 @@ from pipen import Pipen
 from pipen_cli_require.require import PipenRequire
 
 EXAMPLE_PIPELINE = str(
-    Path(__file__).parent / "example_pipeline.py:example_pipeline"
+    Path(__file__).parent / "example_pipeline.py:ExamplePipeline"
 )
 
 
@@ -33,7 +33,7 @@ def test_wrong_pipeline():
 
 def test_init_using_module():
     sys.path.insert(0, str(Path(__file__).parent))
-    pr = PipenRequire("example_pipeline:example_pipeline", [], 1, False)
+    pr = PipenRequire("example_pipeline:ExamplePipeline", [], 1, False)
     assert isinstance(pr.pipeline, Pipen)
 
 

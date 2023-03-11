@@ -128,7 +128,7 @@ class PipenRequire:
         self.pool = None
         self.results = OrderedDiot()
 
-    def _parse_pipeline(self, pipeline: str) -> "Pipen":
+    def _parse_pipeline(self, pipeline: str) -> Pipen:
         """Parse the pipeline"""
         modpath, sep, name = pipeline.rpartition(":")
         if sep != ":":
@@ -151,7 +151,7 @@ class PipenRequire:
         except AttributeError:
             raise ValueError(f"Invalid pipeline: {pipeline}") from None
 
-        if callable(pipeline):
+        if isinstance(pipeline, type) and issubclass(pipeline, Pipen):
             pipeline = pipeline()
 
         if not isinstance(pipeline, Pipen):

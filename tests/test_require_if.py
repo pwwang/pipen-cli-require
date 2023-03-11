@@ -4,7 +4,7 @@ from pathlib import Path
 import cmdy
 
 REQUIRE_IF_PIPELINE = str(
-    Path(__file__).parent / "require_if_pipeline.py:pipen"
+    Path(__file__).parent / "require_if_pipeline.py:ExamplePipeline"
 )
 
 

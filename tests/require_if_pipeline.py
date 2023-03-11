@@ -30,9 +30,11 @@ class P2(Proc):
     output = "outfile:file:out.txt"
 
 
-def pipen(**kwargs) -> Pipen:
-    return Pipen(__name__, **kwargs).set_start(P1).set_data(["a"])
+class ExamplePipeline(Pipen):
+    name = __name__
+    starts = [P1]
+    data = [["a"]]
 
 
-# if __name__ == "__main__":
-#     pipen(loglevel="debug").run()
+if __name__ == "__main__":
+    ExamplePipeline(loglevel="debug").run()
