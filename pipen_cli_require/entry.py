@@ -61,6 +61,6 @@ class PipenCliRequirePlugin(CLIPlugin):
         )
 
     def parse_args(self) -> Namespace:
-        parsed, rest = self.parser.parse_known_args(parse_file=False)
+        parsed, rest = self.parser.parse_known_args(fromfile_keep=True)
         parsed.pipeline_args = rest
         return parsed
