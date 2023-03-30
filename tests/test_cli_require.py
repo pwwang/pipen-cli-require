@@ -52,6 +52,8 @@ async def test_normal_run(capsys):
 
 def test_cli():
     cmd = [
+        sys.executable,
+        "-m",
         "pipen",
         "require",
         EXAMPLE_PIPELINE,
@@ -62,6 +64,8 @@ def test_cli():
 
 def test_cli_wrong_args():
     cmd = [
+        sys.executable,
+        "-m",
         "pipen",
         "require",
         "pipeline",

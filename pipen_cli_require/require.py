@@ -51,7 +51,7 @@ def _parse_proc_requirements(
     proc: Type[Proc]
 ) -> Tuple[OrderedDiot, OrderedDiot]:
     """Parse the requirements of a process"""
-    annotated = annotate(proc, inherit=True)
+    annotated = annotate(proc)
 
     out = OrderedDiot()
     # No requirements specified
