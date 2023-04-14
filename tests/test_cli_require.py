@@ -7,6 +7,14 @@ from subprocess import run
 from pipen import Pipen
 from pipen_cli_require.require import PipenRequire
 
+EXAMPLE_P1 = str(
+    Path(__file__).parent / "example_pipeline.py:P1"
+)
+
+EXAMPLE_PROCGROUP = str(
+    Path(__file__).parent / "example_pipeline.py:PG"
+)
+
 EXAMPLE_PIPELINE = str(
     Path(__file__).parent / "example_pipeline.py:ExamplePipeline"
 )
@@ -44,6 +52,30 @@ async def test_normal_run(capsys):
     await pr.run()
     out = capsys.readouterr().out
     assert "EXAMPLE_PIPELINE" in out
+    assert "Process 1" in out
+    assert "pipen" in out
+    assert "liquidpy" in out
+    assert "No module named 'nonexist'" in out
+    assert "Skipped, no requirements specified." in out
+
+
+@pytest.mark.asyncio
+async def test_normal_run_procgroup(capsys):
+    pr = PipenRequire(EXAMPLE_PROCGROUP, [], ncores=1, verbose=True)
+    await pr.run()
+    out = capsys.readouterr().out
+    assert "Process 1" in out
+    assert "pipen" in out
+    assert "liquidpy" in out
+    assert "No module named 'nonexist'" in out
+    assert "Skipped, no requirements specified." in out
+
+
+@pytest.mark.asyncio
+async def test_normal_run_p1(capsys):
+    pr = PipenRequire(EXAMPLE_P1, [], ncores=1, verbose=True)
+    await pr.run()
+    out = capsys.readouterr().out
     assert "Process 1" in out
     assert "pipen" in out
     assert "liquidpy" in out

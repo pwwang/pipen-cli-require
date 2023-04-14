@@ -15,7 +15,7 @@ from rich.tree import Tree
 from rich.live import Live
 from rich.status import Status
 from liquid import Liquid
-from pipen import Pipen, Proc
+from pipen import Pipen, Proc, ProcGroup
 from pipen_annotate import annotate
 
 PROC_SUMMARY_NAME = "_SUMMARY"
@@ -119,6 +119,47 @@ def _run_check(pname, name, cond, check, status, errors):
             STATUSES[check] = CheckingStatus.SUCCESS.value
 
 
+def parse_pipeline(pipeline: str) -> Pipen:
+    """Parse the pipeline"""
+    modpath, sep, name = pipeline.rpartition(":")
+    if sep != ":":
+        raise ValueError(
+            f"Invalid pipeline: {pipeline}.\n"
+            "It must be in the format '<module[.submodule]>:pipeline' or \n"
+            "'/path/to/pipeline.py:pipeline'"
+        )
+
+    path = Path(modpath)
+    if path.is_file():
+        spec = importlib.util.spec_from_file_location(path.stem, modpath)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    else:
+        module = importlib.import_module(modpath)
+
+    try:
+        pipeline = getattr(module, name)
+    except AttributeError:
+        raise ValueError(f"Invalid pipeline: {pipeline}") from None
+
+    if isinstance(pipeline, type) and issubclass(pipeline, Proc):
+        pipeline = Pipen(name=f"{pipeline.name}Pipeline").set_starts(pipeline)
+
+    if isinstance(pipeline, type) and issubclass(pipeline, Pipen):
+        pipeline = pipeline()
+
+    if isinstance(pipeline, type) and issubclass(pipeline, ProcGroup):
+        pipeline = pipeline().as_pipen()
+
+    if not isinstance(pipeline, Pipen):
+        raise ValueError(
+            f"Invalid pipeline: {pipeline}\n"
+            "It must be a `pipen.Pipen` instance"
+        )
+
+    return pipeline
+
+
 class PipenRequire:
     """The class to extract and check requirements"""
 
@@ -129,7 +170,7 @@ class PipenRequire:
         ncores: int,
         verbose: bool,
     ):
-        self.pipeline = self._parse_pipeline(pipeline)
+        self.pipeline = parse_pipeline(pipeline)
         self.pipeline_args = pipeline_args
         self.ncores = ncores
         self.verbose = verbose
@@ -137,40 +178,6 @@ class PipenRequire:
         self.errors = Manager().dict()
         self.pool = None
         self.results = OrderedDiot()
-
-    def _parse_pipeline(self, pipeline: str) -> Pipen:
-        """Parse the pipeline"""
-        modpath, sep, name = pipeline.rpartition(":")
-        if sep != ":":
-            raise ValueError(
-                f"Invalid pipeline: {pipeline}.\n"
-                "It must be in the format '<module[.submodule]>:pipeline' or \n"
-                "'/path/to/pipeline.py:pipeline'"
-            )
-
-        path = Path(modpath)
-        if path.is_file():
-            spec = importlib.util.spec_from_file_location(path.stem, modpath)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-        else:
-            module = importlib.import_module(modpath)
-
-        try:
-            pipeline = getattr(module, name)
-        except AttributeError:
-            raise ValueError(f"Invalid pipeline: {pipeline}") from None
-
-        if isinstance(pipeline, type) and issubclass(pipeline, Pipen):
-            pipeline = pipeline()
-
-        if not isinstance(pipeline, Pipen):
-            raise ValueError(
-                f"Invalid pipeline: {pipeline}\n"
-                "It must be a `pipen.Pipen` instance"
-            )
-
-        return pipeline
 
     def _generate_tree(self, all_reqs: Mapping[str, Mapping[str, str]]):
         """Generate a tree to show requirements checking"""

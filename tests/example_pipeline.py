@@ -1,5 +1,6 @@
+from functools import cached_property
 import sys
-from pipen import Proc, Pipen
+from pipen import Proc, Pipen, ProcGroup
 
 
 class P1(Proc):
@@ -60,11 +61,19 @@ class P3(P1):
     requires = P2
 
 
+class PG(ProcGroup):
+    """A group of processes"""
+
+    p1 = ProcGroup.add_proc(lambda self: P1)
+    p2 = ProcGroup.add_proc(lambda self: P2)
+    p3 = ProcGroup.add_proc(lambda self: P3)
+
+
 class ExamplePipeline(Pipen):
     """Example pipeline"""
 
     name = __name__
-    starts = [P1]
+    starts = PG().starts
     data = [["a"]]
 
 
