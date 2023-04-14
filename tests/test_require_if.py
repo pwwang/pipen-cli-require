@@ -9,7 +9,7 @@ REQUIRE_IF_PIPELINE = str(
 
 
 def test_require_if():
-    out = cmdy.pipen.require(r_verbose=True, _=[REQUIRE_IF_PIPELINE])
+    out = cmdy.pipen.require(verbose=True, _=[REQUIRE_IF_PIPELINE])
     assert out.rc == 0
     assert "No module named 'nonexist1'" in out.stdout
     assert "nonexist2 (skipped by if-statement)" in out.stdout

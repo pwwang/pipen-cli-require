@@ -43,17 +43,19 @@ class P1(Proc):
 # Setup the pipeline
 # Must be outside __main__
 # Or define a function to return the pipeline
-pipeline = Pipen(...).set_start(P1)
+class Pipeline(Pipen):
+    starts = P1
+
 
 if __name__ == '__main__':
-    # Pipeline must be executed with __main__
-    pipeline.run()
+    # Pipeline must run with __main__
+    Pipeline().run()
 ```
 
 ## Checking the requirements via the CLI
 
 ```shell
-> pipen require --r-verbose --r-ncores 2 example_pipeline.py:pipeline
+> pipen require --verbose --ncores 2 example_pipeline.py:pipeline
 
 Checking requirements for pipeline: PIPEN-0
 │

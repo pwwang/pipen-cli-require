@@ -1,8 +1,10 @@
 """Provides PipenCliRequire"""
 from __future__ import annotations
+
+import sys
+import asyncio
 from typing import TYPE_CHECKING
 
-import asyncio
 from pipen.cli import CLIPlugin
 
 from .require import PipenRequire
@@ -25,14 +27,14 @@ class PipenCliRequirePlugin(CLIPlugin):
     ) -> None:
         super().__init__(parser, subparser)
         subparser.add_argument(
-            "--r-ncores",
+            "--ncores",
             type=int,
             default=1,
             dest="ncores",
             help="Number of cores to use to check the requirements",
         )
         subparser.add_argument(
-            "--r-verbose",
+            "--verbose",
             action="store_true",
             default=False,
             dest="verbose",
@@ -61,6 +63,13 @@ class PipenCliRequirePlugin(CLIPlugin):
         )
 
     def parse_args(self) -> Namespace:
-        parsed, rest = self.parser.parse_known_args(fromfile_keep=True)
+        """Parse the arguments"""
+        # split the args into two parts, separated by `--`
+        # the first part is the args for pipen_cli_config
+        # the second part is the args for the pipeline
+        args = sys.argv[1:]
+        idx = args.index("--") if "--" in args else len(args)
+        args, rest = args[:idx], args[idx + 1 :]
+        parsed = self.parser.parse_args(args=args)
         parsed.pipeline_args = rest
         return parsed
