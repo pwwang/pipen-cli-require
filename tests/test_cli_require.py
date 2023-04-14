@@ -1,7 +1,8 @@
-from subprocess import PIPE, run
-import pytest
+import os
 import sys
+import pytest
 from pathlib import Path
+from subprocess import run
 
 from pipen import Pipen
 from pipen_cli_require.require import PipenRequire
@@ -58,7 +59,13 @@ def test_cli():
         "require",
         EXAMPLE_PIPELINE,
     ]
-    p = run(cmd, stdout=PIPE, stderr=PIPE)
+    p = run(
+        cmd,
+        stdout=None,
+        stderr=None,
+        preexec_fn=os.setpgrp,
+        close_fds=True,
+    )
     assert p.returncode == 0
 
 
@@ -70,5 +77,11 @@ def test_cli_wrong_args():
         "require",
         "pipeline",
     ]
-    p = run(cmd, stdout=PIPE, stderr=PIPE)
+    p = run(
+        cmd,
+        stdout=None,
+        stderr=None,
+        preexec_fn=os.setpgrp,
+        close_fds=True,
+    )
     assert p.returncode == 1

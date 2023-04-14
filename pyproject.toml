@@ -10,8 +10,8 @@ readme = "README.md"
 generate-setup-file = true
 
 [tool.poetry.dependencies]
-python = "^3.7.1"
-pipen-annotate = "^0.6"
+python = "^3.8"
+pipen-annotate = "^0.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7"
@@ -19,7 +19,7 @@ pytest-asyncio = "^0.20"
 pytest-cov = "^4"
 pytest-xdist = "^3"
 cmdy = "^0.5"
-pipen-args = "^0.8"
+pipen-args = "^0.9"
 
 [tool.poetry.plugins.pipen_cli]
 cli-require = "pipen_cli_require:PipenCliRequirePlugin"

@@ -1,6 +1,5 @@
 import sys
 from pipen import Proc, Pipen
-from pipen_args import install  # noqa: F401
 
 
 class P1(Proc):

@@ -50,7 +50,17 @@ def _render_requirement(s: str | None, proc: Type[Proc]) -> str | None:
 def _parse_proc_requirements(
     proc: Type[Proc]
 ) -> Tuple[OrderedDiot, OrderedDiot]:
-    """Parse the requirements of a process"""
+    """Parse the requirements of a process
+
+    Args:
+        proc: The process class
+
+    Returns:
+        A tuple of two OrderedDiot's.
+        The first one is the annotated sections by pipen_annotate
+        The second one is the requirements. The key is the name of the
+            requirement, the value is a dict with message, check and if_ keys.
+    """
     annotated = annotate(proc)
 
     out = OrderedDiot()
@@ -273,6 +283,11 @@ class PipenRequire:
         sys.argv = [self.pipeline.name] + self.pipeline_args
         # Initialize the pipeline so that the arguments definied by
         # other plugins (i.e. pipen-args) to take in place.
+        # Make sure the workdir is created, in case other plugins need it
+        self.pipeline.workdir = Path(self.pipeline.config.workdir).joinpath(
+            self.pipeline.name
+        )
+        self.pipeline.workdir.mkdir(parents=True, exist_ok=True)
         await self.pipeline._init()
         self.pipeline.build_proc_relationships()
         all_reqs = OrderedDiot()
