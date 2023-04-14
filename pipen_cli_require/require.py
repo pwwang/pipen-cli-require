@@ -47,7 +47,7 @@ def _render_requirement(s: str | None, proc: Type[Proc]) -> str | None:
     return liq.render(proc=proc, envs=proc.envs)
 
 
-def _parse_proc_requirements(
+def parse_proc_requirements(
     proc: Type[Proc]
 ) -> Tuple[OrderedDiot, OrderedDiot]:
     """Parse the requirements of a process
@@ -299,7 +299,7 @@ class PipenRequire:
         self.pipeline.build_proc_relationships()
         all_reqs = OrderedDiot()
         for proc in self.pipeline.procs:
-            anno, requires = _parse_proc_requirements(proc)
+            anno, requires = parse_proc_requirements(proc)
             all_reqs[proc.name] = requires
             all_reqs[proc.name][PROC_SUMMARY_NAME] = anno.Summary.short
 

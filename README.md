@@ -52,6 +52,28 @@ if __name__ == '__main__':
     Pipeline().run()
 ```
 
+### Parsing process requirements using API
+
+```python
+from pipen_cli_require import parse_proc_requirements
+
+
+def parse_proc_requirements(
+    proc: Type[Proc]
+) -> Tuple[OrderedDiot, OrderedDiot]:
+    """Parse the requirements of a process
+
+    Args:
+        proc: The process class
+
+    Returns:
+        A tuple of two OrderedDiot's.
+        The first one is the annotated sections by pipen_annotate
+        The second one is the requirements. The key is the name of the
+            requirement, the value is a dict with message, check and if_ keys.
+    """
+```
+
 ## Checking the requirements via the CLI
 
 ```shell
