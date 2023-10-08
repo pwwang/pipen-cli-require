@@ -4,8 +4,6 @@ import sys
 from subprocess import check_output
 from pathlib import Path
 
-import cmdy
-
 PIPEN_ARGS_PIPELINE = str(
     Path(__file__).parent / "pipen_args_pipeline.py:ExamplePipeline"
 )

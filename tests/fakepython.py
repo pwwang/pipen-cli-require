@@ -1,4 +1,4 @@
-import cmdy
+import subprocess as sp
 import sys
 
 if sys.argv[1] == "-c":
@@ -7,4 +7,10 @@ if sys.argv[1] == "-c":
     sys.stderr.write(f"No such package: {sys.argv[2]}")
     sys.exit(1)
 
-cmdy.python(*sys.argv[1:], _exe=sys.executable)
+
+sp.Popen(
+    [sys.executable, *sys.argv[1:]], 
+    stdin=sys.stdin, 
+    stdout=sys.stdout, 
+    stderr=sys.stderr,
+)

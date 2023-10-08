@@ -1,7 +1,7 @@
 import pytest  # noqa
 from pathlib import Path
 
-import cmdy
+import subprocess as sp
 
 REQUIRE_IF_PIPELINE = str(
     Path(__file__).parent / "require_if_pipeline.py:ExamplePipeline"
@@ -9,7 +9,6 @@ REQUIRE_IF_PIPELINE = str(
 
 
 def test_require_if():
-    out = cmdy.pipen.require(verbose=True, _=[REQUIRE_IF_PIPELINE])
-    assert out.rc == 0
-    assert "No module named 'nonexist1'" in out.stdout
-    assert "nonexist2 (skipped by if-statement)" in out.stdout
+    out = sp.check_output(["pipen", "require", "--verbose", REQUIRE_IF_PIPELINE])
+    assert b"No module named 'nonexist1'" in out
+    assert b"nonexist2 (skipped by if-statement)" in out
