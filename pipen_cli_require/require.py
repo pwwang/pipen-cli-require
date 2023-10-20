@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 import sys
-import importlib
 from enum import Enum, auto
-from pathlib import Path
 from multiprocessing import Pool, Manager
 from subprocess import PIPE, run
 from time import sleep
@@ -15,7 +13,7 @@ from rich.tree import Tree
 from rich.live import Live
 from rich.status import Status
 from liquid import Liquid
-from pipen import Pipen, Proc, ProcGroup
+from pipen import Proc
 from pipen.utils import load_pipeline
 from pipen_annotate import annotate
 
