@@ -16,6 +16,7 @@ from rich.live import Live
 from rich.status import Status
 from liquid import Liquid
 from pipen import Pipen, Proc, ProcGroup
+from pipen.utils import load_pipeline
 from pipen_annotate import annotate
 
 PROC_SUMMARY_NAME = "_SUMMARY"
@@ -119,47 +120,6 @@ def _run_check(pname, name, cond, check, status, errors):
             STATUSES[check] = CheckingStatus.SUCCESS.value
 
 
-def parse_pipeline(pipeline: str) -> Pipen:
-    """Parse the pipeline"""
-    modpath, sep, name = pipeline.rpartition(":")
-    if sep != ":":
-        raise ValueError(
-            f"Invalid pipeline: {pipeline}.\n"
-            "It must be in the format '<module[.submodule]>:pipeline' or \n"
-            "'/path/to/pipeline.py:pipeline'"
-        )
-
-    path = Path(modpath)
-    if path.is_file():
-        spec = importlib.util.spec_from_file_location(path.stem, modpath)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-    else:
-        module = importlib.import_module(modpath)
-
-    try:
-        pipeline = getattr(module, name)
-    except AttributeError:
-        raise ValueError(f"Invalid pipeline: {pipeline}") from None
-
-    if isinstance(pipeline, type) and issubclass(pipeline, Proc):
-        pipeline = Pipen(name=f"{pipeline.name}Pipeline").set_starts(pipeline)
-
-    if isinstance(pipeline, type) and issubclass(pipeline, Pipen):
-        pipeline = pipeline()
-
-    if isinstance(pipeline, type) and issubclass(pipeline, ProcGroup):
-        pipeline = pipeline().as_pipen()
-
-    if not isinstance(pipeline, Pipen):
-        raise ValueError(
-            f"Invalid pipeline: {pipeline}\n"
-            "It must be a `pipen.Pipen` instance"
-        )
-
-    return pipeline
-
-
 class PipenRequire:
     """The class to extract and check requirements"""
 
@@ -170,7 +130,7 @@ class PipenRequire:
         ncores: int,
         verbose: bool,
     ):
-        self.pipeline = parse_pipeline(pipeline)
+        self.pipeline = pipeline
         self.pipeline_args = pipeline_args
         self.ncores = ncores
         self.verbose = verbose
@@ -286,17 +246,11 @@ class PipenRequire:
 
     async def run(self):
         """Run the pipeline"""
-        # Inject the cli arguments to the pipeline
-        sys.argv = [self.pipeline.name] + self.pipeline_args
-        # Initialize the pipeline so that the arguments definied by
-        # other plugins (i.e. pipen-args) to take in place.
-        # Make sure the workdir is created, in case other plugins need it
-        self.pipeline.workdir = Path(self.pipeline.config.workdir).joinpath(
-            self.pipeline.name
+        self.pipeline = await load_pipeline(
+            self.pipeline,
+            argv0=sys.argv[0],
+            argv1p=self.pipeline_args,
         )
-        self.pipeline.workdir.mkdir(parents=True, exist_ok=True)
-        await self.pipeline._init()
-        self.pipeline.build_proc_relationships()
         all_reqs = OrderedDiot()
         for proc in self.pipeline.procs:
             anno, requires = parse_proc_requirements(proc)
@@ -315,5 +269,5 @@ class PipenRequire:
             if self.pool is not None:
                 self.pool.close()
                 self.pool.join()
-        except Exception:
+        except Exception:  # pragma: no cover
             pass

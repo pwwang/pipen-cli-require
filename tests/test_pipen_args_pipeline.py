@@ -43,6 +43,7 @@ def test_with_fake_python():
             FAKE_PYTHON,
         ],
     )
+
     stdout = out.decode()
     assert "No such package: import pipen" in stdout
     assert "No such package: import liquid" in stdout

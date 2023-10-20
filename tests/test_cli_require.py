@@ -5,6 +5,7 @@ from pathlib import Path
 from subprocess import run
 
 from pipen import Pipen
+from pipen.utils import load_pipeline
 from pipen_cli_require.require import PipenRequire
 
 EXAMPLE_P1 = str(
@@ -20,30 +21,35 @@ EXAMPLE_PIPELINE = str(
 )
 
 
-def test_init():
+@pytest.mark.asyncio
+async def test_init():
     """Test the initialization of the class"""
     pr = PipenRequire(EXAMPLE_PIPELINE, [], 1, False)
-    assert isinstance(pr.pipeline, Pipen)
+    pipeline = await load_pipeline(pr.pipeline)
+    assert isinstance(pipeline, Pipen)
 
 
-def test_wrong_pipeline():
+@pytest.mark.asyncio
+async def test_wrong_pipeline():
     with pytest.raises(ValueError):
-        PipenRequire("pipeline", [], 1, False)
-    with pytest.raises(ValueError):
-        PipenRequire(f"{EXAMPLE_PIPELINE}x", [], 1, False)
-    with pytest.raises(ValueError):
-        PipenRequire(
+        await PipenRequire("pipeline", [], 1, False).run()
+    with pytest.raises(AttributeError):
+        await PipenRequire(f"{EXAMPLE_PIPELINE}x", [], 1, False).run()
+    with pytest.raises(TypeError):
+        await PipenRequire(
             str(Path(__file__).parent / "example_pipeline.py:sys"),
             [],
             1,
             False,
-        )
+        ).run()
 
 
-def test_init_using_module():
+@pytest.mark.asyncio
+async def test_init_using_module():
     sys.path.insert(0, str(Path(__file__).parent))
     pr = PipenRequire("example_pipeline:ExamplePipeline", [], 1, False)
-    assert isinstance(pr.pipeline, Pipen)
+    pipeline = await load_pipeline(pr.pipeline)
+    assert isinstance(pipeline, Pipen)
 
 
 @pytest.mark.asyncio
