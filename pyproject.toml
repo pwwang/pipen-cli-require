@@ -11,14 +11,14 @@ generate-setup-file = true
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pipen-annotate = "^0.13"
+pipen-annotate = "^0.14"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7"
+pytest = "^8"
 pytest-asyncio = "^0.20"
-pytest-cov = "^4"
+pytest-cov = "^5"
 pytest-xdist = "^3"
-pipen-args = "^0.14"
+pipen-args = "^0.15.0"
 
 [tool.poetry.plugins.pipen_cli]
 cli-require = "pipen_cli_require:PipenCliRequirePlugin"
@@ -29,7 +29,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 87
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39', 'py310', 'py311', 'py312']
 include = '\.pyi?$'
 
 [tool.pytest.ini_options]
