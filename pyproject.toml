@@ -11,9 +11,9 @@ generate-setup-file = true
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pipen-annotate = "0.15"
+pipen-annotate = "^0.15"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8"
 pytest-asyncio = "^0.20"
 pytest-cov = "^6"
