@@ -95,6 +95,7 @@ def test_cli():
         "-m",
         "pipen",
         "require",
+        "-p",
         EXAMPLE_PIPELINE,
     ]
     p = run(
@@ -122,4 +123,24 @@ def test_cli_wrong_args():
         preexec_fn=os.setpgrp,
         close_fds=True,
     )
-    assert p.returncode == 1
+    assert p.returncode != 0
+
+
+def test_cli_unparsed_args():
+    cmd = [
+        sys.executable,
+        "-m",
+        "pipen",
+        "require",
+        "-p",
+        "pipeline:Pipeline",
+        "-abc",
+    ]
+    p = run(
+        cmd,
+        stdout=None,
+        stderr=None,
+        preexec_fn=os.setpgrp,
+        close_fds=True,
+    )
+    assert p.returncode != 0

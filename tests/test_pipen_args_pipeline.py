@@ -1,5 +1,4 @@
 import pytest  # noqa
-import os
 import sys
 from subprocess import check_output
 from pathlib import Path
@@ -20,6 +19,7 @@ def test_with_real_python():
             "pipen",
             "require",
             "--verbose",
+            "-p",
             PIPEN_ARGS_PIPELINE,
             "--",
             "--forks",
@@ -37,6 +37,7 @@ def test_with_fake_python():
             "pipen",
             "require",
             "--verbose",
+            "-p",
             PIPEN_ARGS_PIPELINE,
             "--",
             "--P1.lang",

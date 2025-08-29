@@ -1,10 +1,11 @@
 """Provides PipenCliRequire"""
+
 from __future__ import annotations
 
-import sys
 import asyncio
 from typing import TYPE_CHECKING
 
+from argx import REMAINDER
 from pipen.cli import CLIPlugin
 
 from .require import PipenRequire
@@ -26,6 +27,7 @@ class PipenCliRequirePlugin(CLIPlugin):
         subparser: ArgumentParser,
     ) -> None:
         super().__init__(parser, subparser)
+        subparser.exit_on_void = True
         subparser.add_argument(
             "--ncores",
             type=int,
@@ -41,13 +43,25 @@ class PipenCliRequirePlugin(CLIPlugin):
             help="Show verbosal error when checking failed",
         )
         subparser.add_argument(
-            "pipeline",
+            "-p",
+            "--pipeline",
+            required=True,
             help=(
                 "The pipeline and the CLI arguments to run the pipeline. "
                 "For the pipeline either `/path/to/pipeline.py:<pipeline>` "
                 "or `<module.submodule>:<pipeline>` "
                 "`<pipeline>` must be an instance of `Pipen` and running "
                 "the pipeline should be called under `__name__ == '__main__'."
+            ),
+        )
+        subparser.add_argument(
+            "pipeline_args",
+            nargs=REMAINDER,
+            help=(
+                "Should be passed after '--'.\n"
+                "The arguments to run the pipeline. The pipeline will not be run, we "
+                "need them just in case the arguments affect the structure of the "
+                "pipeline."
             ),
         )
 
@@ -62,14 +76,16 @@ class PipenCliRequirePlugin(CLIPlugin):
             ).run()
         )
 
-    def parse_args(self) -> Namespace:
+    def parse_args(
+        self,
+        known_parsed: Namespace,
+        unparsed_argv: list[str],
+    ) -> Namespace:
         """Parse the arguments"""
-        # split the args into two parts, separated by `--`
-        # the first part is the args for pipen_cli_config
-        # the second part is the args for the pipeline
-        args = sys.argv[1:]
-        idx = args.index("--") if "--" in args else len(args)
-        args, rest = args[:idx], args[idx + 1 :]
-        parsed = self.parser.parse_args(args=args)
-        parsed.pipeline_args = rest
-        return parsed
+        if unparsed_argv:
+            self.subparser.parse_args()
+
+        if known_parsed.pipeline_args:
+            known_parsed.pipeline_args = known_parsed.pipeline_args[1:]
+
+        return known_parsed

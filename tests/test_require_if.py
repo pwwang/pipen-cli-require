@@ -9,6 +9,6 @@ REQUIRE_IF_PIPELINE = str(
 
 
 def test_require_if():
-    out = sp.check_output(["pipen", "require", "--verbose", REQUIRE_IF_PIPELINE])
+    out = sp.check_output(["pipen", "require", "--verbose", "-p", REQUIRE_IF_PIPELINE])
     assert b"No module named 'nonexist1'" in out
     assert b"nonexist2 (skipped by if-statement)" in out
