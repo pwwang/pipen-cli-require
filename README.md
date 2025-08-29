@@ -77,7 +77,7 @@ def parse_proc_requirements(
 ## Checking the requirements via the CLI
 
 ```shell
-> pipen require --verbose --ncores 2 example_pipeline.py:pipeline
+> pipen require --verbose --ncores 2 -p example_pipeline.py:pipeline
 
 Checking requirements for pipeline: PIPEN-0
 │
