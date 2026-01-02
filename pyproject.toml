@@ -18,7 +18,8 @@ pytest = "^8"
 pytest-asyncio = "^0.20"
 pytest-cov = "^6"
 pytest-xdist = "^3"
-pipen-args = "^1.0"
+pipen-args = "^1.1"
+pipen = {version = "1.1.*", allow-prereleases = true}
 
 [tool.poetry.plugins.pipen_cli]
 cli-require = "pipen_cli_require:PipenCliRequirePlugin"
