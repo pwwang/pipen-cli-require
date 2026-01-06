@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import TYPE_CHECKING
 
 from argx import REMAINDER
-from pipen.cli import CLIPlugin
+from pipen.cli import AsyncCLIPlugin
 
 from .require import PipenRequire
 from .version import __version__
@@ -15,7 +14,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from argx import ArgumentParser, Namespace
 
 
-class PipenCliRequirePlugin(CLIPlugin):
+class PipenCliRequirePlugin(AsyncCLIPlugin):
     """Check the requirements of a pipeline"""
 
     version = __version__
@@ -65,18 +64,16 @@ class PipenCliRequirePlugin(CLIPlugin):
             ),
         )
 
-    def exec_command(self, args: Namespace) -> None:
+    async def exec_command(self, args: Namespace) -> None:
         """Execute the command"""
-        asyncio.run(
-            PipenRequire(
-                args.pipeline,
-                args.pipeline_args,
-                args.ncores,
-                args.verbose,
-            ).run()
-        )
+        await PipenRequire(
+            args.pipeline,
+            args.pipeline_args,
+            args.ncores,
+            args.verbose,
+        ).run()
 
-    def parse_args(
+    async def parse_args(
         self,
         known_parsed: Namespace,
         unparsed_argv: list[str],
