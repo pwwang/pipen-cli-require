@@ -1,4 +1,3 @@
-from functools import cached_property
 import sys
 from pipen import Proc, Pipen, ProcGroup
 
@@ -78,4 +77,7 @@ class ExamplePipeline(Pipen):
 
 
 if __name__ == "__main__":
-    ExamplePipeline(loglevel="debug").run()
+    ExamplePipeline(
+        loglevel="debug",
+        workdir="/tmp/pipen_cli_require-tests/example_pipeline",
+    ).run()

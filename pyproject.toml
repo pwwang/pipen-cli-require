@@ -1,32 +1,35 @@
-[tool.poetry]
+[project]
 name = "pipen-cli-require"
-version = "1.0.3"
+dynamic = ["version"]
 description = "A pipen cli plugin to check requirements for processes of a pipeline"
-authors = ["pwwang <pwwang@pwwang.com>"]
+authors = [{ name = "pwwang", email = "pwwang@pwwang.com" }]
 license = "MIT"
 readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pipen-annotate>=1.0,<2.0",
+]
 
-[tool.poetry.build]
-generate-setup-file = true
+[tool.hatch.version]
+path = "pipen_cli_require/version.py"
 
-[tool.poetry.dependencies]
-python = "^3.9"
-pipen-annotate = "^1.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8"
-pytest-asyncio = "^0.20"
-pytest-cov = "^6"
-pytest-xdist = "^3"
-pipen-args = "^1.2"
-pipen = {version = "1.1.*", allow-prereleases = true}
-
-[tool.poetry.plugins.pipen_cli]
+[project.entry-points."pipen_cli"]
 cli-require = "pipen_cli_require:PipenCliRequirePlugin"
 
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.20",
+    "pytest-cov>=6",
+    "pytest-xdist>=3",
+    "pipen-args>=1.2",
+    "pipen>1.1",
+    "flake8>=7",
+]
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.black]
 line-length = 88
@@ -41,3 +44,6 @@ filterwarnings = [
 ]
 console_output_style = "progress"
 junit_family = "xunit1"
+
+[tool.uv]
+prerelease = "allow"
