@@ -1,6 +1,13 @@
-# pipen-cli-require
+<p align="center">
+  <img width="220px" src="logo.png" />
+</p>
+<p align="center">
+  Checking the requirements for processes of a
+  <a href="https://github.com/pwwang/pipen" target="_blank">pipen</a>
+  pipeline
+</p>
 
-Checking the requirements for processes of a [pipen][1] pipeline
+<hr />
 
 ## Install
 
